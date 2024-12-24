@@ -1,0 +1,138 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <!-- Request Details -->
+  <div class="card mb-5 shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4>Request Details</h4>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <p><strong>ID:</strong> {{ request_details.id }}</p>
+          <p>
+            <strong>Material Type:</strong> {{ request_details.material_type }}
+          </p>
+          <p>
+            <strong>Material Name:</strong> {{ request_details.material_name }}
+          </p>
+          <p><strong>Base Unit:</strong> {{ request_details.base_unit }}</p>
+        </div>
+        <div class="col-md-6">
+          <p><strong>Requester:</strong> {{ request_details.requester }}</p>
+          <p>
+            <strong>Status:</strong>
+            {% if request_details.status == "Approved" %}
+            <span class="badge bg-success">Approved</span>
+            {% elif request_details.status == "Rejected" %}
+            <span class="badge bg-danger">Rejected</span>
+            {% else %}
+            <span class="badge bg-warning text-dark">Pending</span>
+            {% endif %}
+          </p>
+          <p><strong>Created At:</strong> {{ request_details.created_at }}</p>
+          <p><strong>Last Updated:</strong> {{ request_details.updated_at }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+    {% for activity in activities %}
+    <div class="timeline-item {{ loop.index % 2 == 0 and 'left' or 'right' }}">
+      <div class="timeline-content">
+        <h5>{{ activity.message }}</h5>
+        <p>{{ activity.timestamp }}</p>
+      </div>
+      <div class="timeline-point"></div>
+    </div>
+    {% endfor %}
+    <div class="timeline-line"></div>
+  </div>
+</div>
+
+<!-- Timeline Styles -->
+<style>
+  .timeline {
+    position: relative;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .timeline-line {
+    position: absolute;
+    width: 4px;
+    background: #007bff;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .timeline-item {
+    position: relative;
+    width: 50%;
+    padding: 20px 0;
+  }
+
+  .timeline-item.left {
+    left: 0;
+    text-align: right;
+  }
+
+  .timeline-item.right {
+    left: 50%;
+    text-align: left;
+  }
+
+  .timeline-item .timeline-content {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 2;
+  }
+
+  .timeline-item.left .timeline-content {
+    margin-right: 80px;
+  }
+
+  .timeline-item.right .timeline-content {
+    margin-left: 80px;
+  }
+
+  .timeline-item .timeline-point {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    background: #007bff;
+    border: 4px solid white;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+  }
+
+  .timeline-item.left .timeline-point {
+    right: -8px;
+  }
+
+  .timeline-item.right .timeline-point {
+    left: -8px;
+  }
+
+  .timeline-content h5 {
+    margin: 0 0 10px 0;
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  .timeline-content p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+</style>
+{% endblock %}

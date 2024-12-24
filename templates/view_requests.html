@@ -1,0 +1,136 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Material Requests</h2>
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Material Type</th>
+        <th>Material Name</th>
+        <th>Base Unit</th>
+        <th>Requester</th>
+        <th>Status</th>
+        <th>Actions</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in requests %}
+      <tr
+        class="clickable-row"
+        data-href="/request-lifecycle/{{ req
+        [0] }}"
+      >
+        <td>{{ req[0] }}</td>
+        <td>{{ req[1] }}</td>
+        <td>{{ req[2] }}</td>
+        <td>{{ req[3] }}</td>
+        <td>{{ req[5] }}</td>
+        <td>
+          {% if req[6] == 'Pending' %}
+          <span class="badge bg-warning text-dark">Pending</span>
+          {% elif req[6] == 'Approved' %}
+          <span class="badge bg-success">Approved</span>
+          {% elif req[6] == 'Rejected' %}
+          <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if req[6] == 'Pending' %}
+          <a href="/approve/{{ req[0] }}" class="btn btn-success btn-sm"
+            >Approve</a
+          >
+          <form
+            action="/reject/{{ req[0] }}"
+            method="post"
+            style="display: inline"
+          >
+            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+          </form>
+
+          {% else %}
+          <span class="text-muted">No actions</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          <i class="fas fa-chevron-right arrow"></i>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // Onay sonrası pop-up mesajı
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('action') === 'approved') {
+    Swal.fire({
+      icon: 'success',
+      title: 'Request Approved!',
+      text: 'The material request has been approved successfully.',
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  } else if (urlParams.get('action') === 'rejected') {
+    Swal.fire({
+      icon: 'error',
+      title: 'Request Rejected!',
+      text: 'The material request has been rejected.',
+      showConfirmButton: false,
+      timer: 2000,
+    });
+  }
+
+  // Soft transition effect on row click
+  document.querySelectorAll('.clickable-row').forEach((row) => {
+    row.addEventListener('click', function () {
+      document.body.style.transition =
+        'opacity 0.4s ease-in-out, transform 0.4s ease-in-out';
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        window.location.href = this.dataset.href;
+      }, 400);
+    });
+  });
+
+  // Handle browser back button cache
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+
+<style>
+  /* Tıklanabilir satır ve hover efekti */
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .clickable-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .clickable-row .arrow {
+    font-size: 1.5rem;
+    color: #adb5bd; /* Soft gray */
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .clickable-row:hover .arrow {
+    transform: translateX(5px);
+    color: #6c757d; /* Darker gray on hover */
+  }
+
+  .clickable-row td {
+    vertical-align: middle;
+  }
+</style>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Approved Material Requests</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Material Type</th>
+        <th>Material Name</th>
+        <th>Base Unit</th>
+        <th>Notes</th>
+        <th>Requester</th>
+        <th>Status</th>
+        <th>Rejection Reason</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for req in approved %}
+      <tr>
+        <td>{{ req[0] }}</td>
+        <td>{{ req[1] }}</td>
+        <td>{{ req[2] }}</td>
+        <td>{{ req[3] }}</td>
+        <td>{{ req[4] }}</td>
+        <td>{{ req[5] }}</td>
+        <td>{{ req[6] }}</td>
+        <td>{{ req[7] if req[6] == 'Rejected' else '-' }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

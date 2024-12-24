@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MasterDX</title>
+    <!-- Favicon -->
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+    <style>
+      /* Genel body ve wrapper */
+      body {
+        margin: 0;
+        overflow-x: hidden;
+      }
+
+      .wrapper {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+        opacity: 1;
+        transform: scale(1);
+        overflow-y: auto;
+      }
+
+      .wrapper.fade-in {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      .wrapper.fade-out {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      .wrapper.fade-back {
+        opacity: 0;
+        transform: scale(1.05);
+      }
+
+      /* Navbar */
+      .navbar {
+        z-index: 1030;
+        box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-brand img {
+        height: 60px; /* Logonun yüksekliği */
+      }
+
+      .search-bar {
+        width: 100%;
+        max-width: 600px;
+        position: relative;
+      }
+
+      /* Search suggestions styling */
+      #search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid #dee2e6;
+        background-color: #fff;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+        z-index: 1050;
+      }
+
+      #search-suggestions .dropdown-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        border-bottom: 1px solid #dee2e6;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #495057;
+      }
+
+      #search-suggestions .dropdown-item:last-child {
+        border-bottom: none;
+      }
+
+      #search-suggestions .dropdown-item:hover {
+        background-color: #e9ecef;
+        color: #007bff;
+      }
+
+      #search-suggestions .material-name {
+        flex: 1;
+        text-align: left;
+      }
+
+      #search-suggestions .material-id {
+        font-weight: bold;
+        text-align: right;
+        margin-left: 10px;
+        color: #6c757d;
+      }
+
+      /* Sidebar */
+      .sidebar {
+        width: 250px;
+        background-color: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        padding: 20px 15px;
+        height: 100vh;
+        position: fixed;
+        overflow-y: auto;
+      }
+
+      .sidebar .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        color: #495057;
+      }
+
+      .sidebar .nav-link:hover {
+        background-color: #e9ecef;
+        color: #007bff;
+      }
+
+      .sidebar .nav-link i {
+        font-size: 1.2rem;
+      }
+
+      /* Geri Butonu */
+      .btn-back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 50px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+      }
+
+      .btn-back i {
+        font-size: 1.2rem;
+      }
+
+      .btn-back:hover {
+        background-color: #6c757d;
+        color: white;
+      }
+
+      /* Ana İçerik */
+      .main-content {
+        flex: 1;
+        padding: 20px;
+        margin-left: 250px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 768px) {
+        .sidebar {
+          width: 200px;
+        }
+
+        .main-content {
+          margin-left: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <!-- Logo -->
+        <a class="navbar-brand" href="#">
+          <img src="/static/logo.png" alt="MasterDX Logo" />
+          <!-- Logo dosya yolu -->
+        </a>
+        <form
+          id="search-form"
+          class="d-flex ms-auto search-bar"
+          action="/search-results"
+          method="get"
+          onsubmit="clearSearch()"
+        >
+          <input
+            id="search-input"
+            name="query"
+            class="form-control"
+            type="search"
+            placeholder="Search by Material ID or Name"
+            aria-label="Search"
+            oninput="handleSearch(this.value)"
+            autocomplete="off"
+          />
+          <button class="btn btn-outline-primary" type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+          <div id="search-suggestions" style="display: none"></div>
+        </form>
+      </div>
+    </nav>
+
+    <!-- Wrapper -->
+    <div class="wrapper fade-in">
+      <div class="content-wrapper">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+          <ul class="nav flex-column">
+            <!-- Admin Menüsü -->
+            {% if session.get('role') == 'Admin' %}
+            <li class="nav-item">
+              <a class="nav-link" href="/dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/requests">
+                <i class="fas fa-box"></i> Material Requests
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/approved-requests">
+                <i class="fas fa-file-alt"></i> Reports
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/user-management">
+                <i class="fas fa-users"></i> User Management
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/material-request">
+                <i class="fas fa-plus"></i> Create Request
+              </a>
+            </li>
+            {% endif %}
+
+            <!-- Talep Edici Menüsü -->
+            {% if session.get('role') == 'Talep Edici' %}
+            <li class="nav-item">
+              <a class="nav-link" href="/material-request">
+                <i class="fas fa-plus"></i> Create Request
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/user-reports">
+                <i class="fas fa-file-alt"></i> My Reports
+              </a>
+            </li>
+            {% endif %}
+
+            <!-- Ortak Menüler -->
+            <li class="nav-item">
+              <a class="nav-link text-danger" href="/logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+          {% if request.path != '/dashboard' %}
+          <button
+            class="btn btn-outline-secondary btn-back"
+            onclick="goBackWithEffect()"
+          >
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          {% endif %} {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+      // Handle the search functionality
+      function handleSearch(query) {
+        const suggestions = document.getElementById('search-suggestions');
+        suggestions.innerHTML = '';
+
+        if (query.trim().length === 0) {
+          suggestions.style.display = 'none';
+          return;
+        }
+
+        fetch(`/search?query=${encodeURIComponent(query)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.results.length > 0) {
+              suggestions.style.display = 'block';
+              data.results.forEach((result) => {
+                const suggestionItem = document.createElement('div');
+                suggestionItem.classList.add('dropdown-item');
+                suggestionItem.innerHTML = `
+              <span class="material-name">${result.name}</span>
+              <span class="material-id">(ID: ${result.id})</span>
+            `;
+                suggestionItem.onclick = () => {
+                  window.location.href = `/request-lifecycle/${result.id}`;
+                };
+                suggestions.appendChild(suggestionItem);
+              });
+            } else {
+              suggestions.style.display = 'none';
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching search results:', error);
+          });
+      }
+
+      // Clear the search input and suggestions after form submission with a delay
+      document
+        .getElementById('search-form')
+        .addEventListener('submit', function () {
+          setTimeout(() => {
+            document.getElementById('search-input').value = '';
+            document.getElementById('search-suggestions').innerHTML = '';
+            document.getElementById('search-suggestions').style.display =
+              'none';
+          }, 100); // Delay to ensure the form submits first
+        });
+
+      function goBackWithEffect() {
+        const wrapper = document.querySelector('.wrapper');
+        wrapper.classList.remove('fade-in');
+        wrapper.classList.add('fade-back');
+        setTimeout(() => {
+          wrapper.style.overflow = 'auto';
+          window.history.back();
+        }, 500);
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const wrapper = document.querySelector('.wrapper');
+        wrapper.classList.add('fade-in');
+      });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

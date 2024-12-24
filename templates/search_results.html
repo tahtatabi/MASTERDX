@@ -1,0 +1,97 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Search Results for "{{ query }}"</h2>
+
+  {% if results %}
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Material Name</th>
+        <th>Material Type</th>
+        <th>Base Unit</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for result in results %}
+      <tr class="clickable-row" data-href="/request-lifecycle/{{ result[0] }}">
+        <td>{{ result[0] }}</td>
+        <td>{{ result[1] }}</td>
+        <td>{{ result[2] }}</td>
+        <td>{{ result[3] }}</td>
+        <td>
+          {% if result[4] == 'Pending' %}
+          <span class="badge bg-warning text-dark">Pending</span>
+          {% elif result[4] == 'Approved' %}
+          <span class="badge bg-success">Approved</span>
+          {% elif result[4] == 'Rejected' %}
+          <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          <i class="fas fa-chevron-right arrow"></i>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="text-muted">No results found for "{{ query }}".</p>
+  {% endif %}
+</div>
+
+<script>
+  // Soft transition effect on row click
+  document.querySelectorAll('.clickable-row').forEach((row) => {
+    row.addEventListener('click', function () {
+      document.body.style.transition =
+        'opacity 0.4s ease-in-out, transform 0.4s ease-in-out';
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        window.location.href = this.dataset.href;
+      }, 400);
+    });
+  });
+
+  // Handle browser back button cache
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+
+<style>
+  /* Tıklanabilir satır ve hover efekti */
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .clickable-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .clickable-row .arrow {
+    font-size: 1.5rem;
+    color: #adb5bd; /* Soft gray */
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+
+  .clickable-row:hover .arrow {
+    transform: translateX(5px);
+    color: #6c757d; /* Darker gray on hover */
+  }
+
+  .clickable-row td {
+    vertical-align: middle;
+  }
+</style>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
+{% endblock %}

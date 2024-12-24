@@ -1,0 +1,211 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h1
+    class="text-center mb-4"
+    style="font-family: 'Roboto', sans-serif; font-weight: 700"
+  >
+    Welcome, {{ user }}
+  </h1>
+
+  <!-- Summary Cards -->
+  <div class="row">
+    <div class="col-md-4">
+      <div
+        class="card shadow-sm"
+        style="
+          background: linear-gradient(135deg, #ffafbd, #ffc3a0);
+          border-radius: 15px;
+        "
+      >
+        <div class="card-body text-center">
+          <h5
+            class="card-title"
+            style="font-family: 'Open Sans', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-clock"></i> Pending Requests
+          </h5>
+          <p class="card-text display-4" style="font-weight: 700">
+            {{ status_data[0] }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div
+        class="card shadow-sm"
+        style="
+          background: linear-gradient(135deg, #c3e0dc, #a1c4fd);
+          border-radius: 15px;
+        "
+      >
+        <div class="card-body text-center">
+          <h5
+            class="card-title"
+            style="font-family: 'Open Sans', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-check-circle"></i> Approved Requests
+          </h5>
+          <p class="card-text display-4" style="font-weight: 700">
+            {{ status_data[1] }}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div
+        class="card shadow-sm"
+        style="
+          background: linear-gradient(135deg, #ff758c, #ff7eb3);
+          border-radius: 15px;
+        "
+      >
+        <div class="card-body text-center">
+          <h5
+            class="card-title"
+            style="font-family: 'Open Sans', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-times-circle"></i> Rejected Requests
+          </h5>
+          <p class="card-text display-4" style="font-weight: 700">
+            {{ status_data[2] }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="row mt-5">
+    <div class="col-md-6">
+      <div class="card shadow-sm" style="border-radius: 15px">
+        <div class="card-body">
+          <h5
+            class="card-title text-center"
+            style="font-family: 'Roboto', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-chart-bar"></i> Request Status
+          </h5>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm" style="border-radius: 15px">
+        <div class="card-body">
+          <h5
+            class="card-title text-center"
+            style="font-family: 'Roboto', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-chart-pie"></i> Approval Completion
+          </h5>
+          <canvas id="completionChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activities -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card shadow-sm" style="border-radius: 15px">
+        <div class="card-body">
+          <h5
+            class="card-title text-center"
+            style="font-family: 'Roboto', sans-serif; font-weight: 600"
+          >
+            <i class="fas fa-list"></i> Recent Activities
+          </h5>
+          <ul class="list-group list-group-flush">
+            {% for activity in recent_activities %}
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center"
+              style="font-family: 'Open Sans', sans-serif; font-size: 16px"
+            >
+              {{ activity.message }}
+              <span class="badge bg-light text-dark" style="font-size: 14px"
+                >{{ activity.timestamp }}</span
+              >
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ChartJS Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script
+  src="https://kit.fontawesome.com/a076d05399.js"
+  crossorigin="anonymous"
+></script>
+<script>
+  // Data for Request Status Chart
+  var statusCtx = document.getElementById('statusChart').getContext('2d');
+  var statusChart = new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Pending', 'Approved', 'Rejected'],
+      datasets: [{
+        data: {{ status_data | safe }},
+        backgroundColor: ['#ffafbd', '#c3e0dc', '#ff758c'],
+      }]
+    },
+    options: {
+      animation: {
+        duration: 1000,
+        easing: 'easeInOutCubic'
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: {
+              family: 'Roboto',
+              size: 14
+            }
+          }
+        }
+      }
+    }
+  });
+
+  // Data for Approval Completion Chart
+  var completionCtx = document.getElementById('completionChart').getContext('2d');
+  var completionChart = new Chart(completionCtx, {
+    type: 'bar',
+    data: {
+      labels: ['Completion'],
+      datasets: [{
+        label: '% Completed',
+        data: [{{ completion_percentage }}],
+        backgroundColor: '#74b9ff',
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            font: {
+              family: 'Roboto',
+              size: 14
+            }
+          }
+        }
+      },
+      animation: {
+        duration: 1000,
+        easing: 'easeInOutCubic'
+      },
+      plugins: {
+        legend: {
+          display: false
+        }
+      }
+    }
+  });
+</script>
+{% endblock %}

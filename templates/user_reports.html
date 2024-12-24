@@ -1,0 +1,129 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>My Material Requests</h2>
+
+  <!-- Başarı Mesajı -->
+  {% if success == "true" %}
+  <div
+    class="toast align-items-center text-white bg-success border-0 position-fixed bottom-0 end-0 m-3"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    id="successToast"
+  >
+    <div class="d-flex">
+      <div class="toast-body">
+        Your material request was successfully created!
+      </div>
+      <button
+        type="button"
+        class="btn-close btn-close-white me-2 m-auto"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const successToast = new bootstrap.Toast(
+        document.getElementById('successToast')
+      );
+      successToast.show();
+    });
+  </script>
+  {% endif %}
+
+  <!-- Rapor Tablosu -->
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>Material Name</th>
+        <th>Material Type</th>
+        <th>Base Unit</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for request in user_requests %}
+      <tr class="clickable-row" data-href="/request-lifecycle/{{ request[0] }}">
+        <td>{{ request[0] }}</td>
+        <td>{{ request[1] }}</td>
+        <td>{{ request[2] }}</td>
+        <td>{{ request[3] }}</td>
+        <td>
+          {% if request[4] == 'Pending' %}
+          <span class="badge bg-warning text-dark">Pending</span>
+          {% elif request[4] == 'Approved' %}
+          <span class="badge bg-success">Approved</span>
+          {% elif request[4] == 'Rejected' %}
+          <span class="badge bg-danger">Rejected</span>
+          {% endif %}
+        </td>
+        <td class="text-end">
+          <i class="fas fa-chevron-right arrow"></i>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  // Geçiş efekti
+  document.querySelectorAll('.clickable-row').forEach((row) => {
+    row.addEventListener('click', function () {
+      document.body.style.transition =
+        'transform 0.3s ease-in-out, opacity 0.3s ease-in-out';
+      document.body.style.opacity = '0';
+      document.body.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        window.location.href = this.dataset.href;
+      }, 300); // Daha hızlı geçiş süresi
+    });
+  });
+
+  // Geri dönüşte sayfanın yeniden yüklenmesi
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
+</script>
+
+<style>
+  .clickable-row {
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .clickable-row:hover {
+    background-color: #f8f9fa;
+  }
+
+  .clickable-row .arrow {
+    font-size: 1.5rem;
+    color: #adb5bd;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+
+  .clickable-row:hover .arrow {
+    transform: translateX(5px);
+    color: #6c757d;
+  }
+
+  .clickable-row td {
+    vertical-align: middle;
+  }
+
+  /* Soft renk solma efekti */
+  body {
+    transform-origin: center;
+  }
+</style>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+/>
+{% endblock %}

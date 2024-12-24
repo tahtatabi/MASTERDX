@@ -1,0 +1,50 @@
+{% extends "base.html" %} {% block content %}
+<div class="container mt-5">
+  <h2>Create Material Request</h2>
+  <form method="post" action="/material-request">
+    <div class="mb-3">
+      <label for="material_type" class="form-label">Material Type</label>
+      <select
+        class="form-control"
+        id="material_type"
+        name="material_type"
+        required
+      >
+        <option value="" disabled selected>Select Material Type</option>
+        {% for mt in material_types %}
+        <option value="{{ mt[0] }}">{{ mt[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="material_name" class="form-label">Material Name</label>
+      <input
+        type="text"
+        class="form-control"
+        id="material_name"
+        name="material_name"
+        required
+      />
+    </div>
+    <div class="mb-3">
+      <label for="base_unit" class="form-label">Base Unit</label>
+      <select class="form-control" id="base_unit" name="base_unit" required>
+        <option value="" disabled selected>Select Base Unit</option>
+        {% for bu in base_units %}
+        <option value="{{ bu[0] }}">{{ bu[1] }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="mb-3">
+      <label for="notes" class="form-label">Notes</label>
+      <textarea
+        class="form-control"
+        id="notes"
+        name="notes"
+        rows="3"
+      ></textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Request</button>
+  </form>
+</div>
+{% endblock %}
